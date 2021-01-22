@@ -1,0 +1,83 @@
+
+<!doctype html>
+<html>
+  <head>
+    <title>ThreeTwo</title>
+    <script src="js/threetwo.js"></script>
+    <script>
+      window.addEventListener("load", Init);
+      const POINTSIZE = 3;
+      const ANGLEINCREMENT = 8;
+      function Init(){
+        drawing = ThreeTwoExamples.cube;
+        canvas = document.getElementById("test_canvas");
+        // console.log("drawing", drawing);
+        Draw(canvas, drawing);
+        window.addEventListener("keydown", KeyDown);
+         
+        function KeyDown(evt){
+          let code = evt.keyCode;
+          // console.log("code", code);
+          if(code == 37){
+            drawing.camera.lookRight += ANGLEINCREMENT;
+          }
+          if(code == 38){
+            drawing.camera.lookUp += ANGLEINCREMENT;
+            drawing.camera.lookUp = Math.min(drawing.camera.lookUp, 90);
+          }
+          if(code == 39){
+            drawing.camera.lookRight -= ANGLEINCREMENT;
+          }
+          if(code == 40){
+            drawing.camera.lookUp -= ANGLEINCREMENT;
+            drawing.camera.lookUp = Math.max(drawing.camera.lookUp, -90);
+          }
+          if(code >= 37 && code <= 40){
+            Draw(canvas, drawing);
+          }
+        }
+      }
+      function Draw(canvas, drawing){
+        let ctx = canvas.getContext("2d");
+
+        // test rectangle
+        // ctx.fillRect(30,30, 80, 20);
+
+        let aspectRatio = canvas.width / canvas.height;
+        let scale = canvas.width;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        ThreeTwo.DrawPoints(drawing, aspectRatio, function(x, y, i){
+          // console.log("Point #" + i, x, y);
+          ctx.fillRect(x * scale - POINTSIZE/2, y * scale - POINTSIZE/2, POINTSIZE, POINTSIZE);
+        })
+
+        let lastColor = null;
+        let lastWidth = null;
+        ThreeTwo.DrawStrokes(drawing, aspectRatio, function(color, lineWidth, x, y, i, j){
+          if(i === null && j === null){ // last call when finished.
+            ctx.stroke();
+          }
+          else if(j == 0){
+            if(color != lastColor || lineWidth != lastWidth){
+              if(i > 0){ ctx.stroke(); }
+              ctx.beginPath();
+              lastColor = color;
+              lastWidth = lineWidth;
+            }
+            ctx.moveTo(x * scale, y * scale);
+          }
+          else{
+            ctx.lineTo(x * scale, y * scale);
+          }
+        })
+      }
+    </script>
+    <style>
+      #test_canvas{ border: 1px solid black; }
+    </style>
+  </head>
+  <body>
+    <canvas id="test_canvas"></canvas>
+  </body>
+</html>
