@@ -23,7 +23,7 @@ ThreeTwo.DrawStrokes = function(drawing, aspectRatio, callback){
     let width = style[1]? style[1] : "2";
     let hasNullPoint = false;
     for(let j=0; j<stroke.length - 1; ++j){
-      if(stroke[j+1] === null){
+      if(stroke[j+1] === null || points[stroke[j + 1]] === null){
         hasNullPoint = true;
       }
     }
