@@ -55,11 +55,11 @@ ThreeTwo.DrawPoints = function(drawing, aspectRatio, callback){
   let temp = [0,0,0];
   for(let i=0; i<points.length; ++i){
      let pt = points[i];
-     ThreeTwo.VectorSubtract(pt, camera.center, temp);
+     ThreeTwo.Subtract(pt, camera.center, temp);
 
-     let x = ThreeTwo.VectorDot(A[1], temp);
-     let y = ThreeTwo.VectorDot(A[2], temp);
-     let depth = ThreeTwo.VectorDot(A[0], temp);
+     let x = ThreeTwo.Dot(A[1], temp);
+     let y = ThreeTwo.Dot(A[2], temp);
+     let depth = ThreeTwo.Dot(A[0], temp);
 
      // center scene
      // the width is always from 0 to 1.
@@ -93,11 +93,11 @@ ThreeTwo.ProjectPoints = function(drawing, aspectRatio){
   let temp = [0,0,0];
   for(let i=0; i<points.length; ++i){
      let pt = points[i];
-     ThreeTwo.VectorSubtract(pt, camera.center, temp);
+     ThreeTwo.Subtract(pt, camera.center, temp);
 
-     let x = ThreeTwo.VectorDot(A[1], temp);
-     let y = ThreeTwo.VectorDot(A[2], temp);
-     let depth = ThreeTwo.VectorDot(A[0], temp);
+     let x = ThreeTwo.Dot(A[1], temp);
+     let y = ThreeTwo.Dot(A[2], temp);
+     let depth = ThreeTwo.Dot(A[0], temp);
 
      // center scene
      // the width is always from 0 to 1.
@@ -137,29 +137,36 @@ ThreeTwo.CameraMatrix = function(lookRight, lookUp){
 }
 
 // operates on a in place.
-ThreeTwo.VectorSubtract = function(a, b, result){
-  if(!result) result = [0,0,0];
-  result[0] = a[0] - b[0];
-  result[1] = a[1] - b[1];
-  result[2] = a[2] - b[2];
+ThreeTwo.Subtract = function(a, b, result){
+  if(!result) result = [];
+  for(let i=0; i<Math.min(a.length, b.length); ++i){
+    result[i] = a[i] - b[i]; }
   return result;
 }
-ThreeTwo.VectorAdd = function(a, b, result){
-  if(!result) result = [0,0,0];
-  result[0] = a[0] + b[0];
-  result[1] = a[1] + b[1];
-  result[2] = a[2] + b[2];
+ThreeTwo.Add = function(a, b, result){
+  if(!result) result = [];
+  for(let i=0; i<Math.min(a.length, b.length); ++i){
+    result[i] = a[i] + b[i]; }
   return result;
 }
-ThreeTwo.VectorDot = function(a, b){
-  return a[0]*b[0] + a[1]*b[1] + a[2]*b[2];
+ThreeTwo.Dot = function(a, b){
+  let x = 0;
+  for(let i=0; i<Math.min(a.length, b.length); ++i){
+    x += a[i] * b[i]; }
+  return x;
+}
+ThreeTwo.Scale = function(s, a, result){
+  if(!result) result = [];
+  for(let i=0; i < a.length; ++i){
+    result[i] = a[i] * s; }
+  return result;
 }
 
-ThreeTwo.MatrixVectorMult = function(A, x){
+ThreeTwo.Mult = function(A, x){
   return [
-    VectorDot(A[0], x),
-    VectorDot(A[1], x),
-    VectorDot(A[2], x)
+    ThreeTwo.Dot(A[0], x),
+    ThreeTwo.Dot(A[1], x),
+    ThreeTwo.Dot(A[2], x)
   ]
 }
 

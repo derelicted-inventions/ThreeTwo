@@ -8,29 +8,73 @@
       window.addEventListener("load", Init);
       const POINTSIZE = 3;
       const ANGLEINCREMENT = 8;
+      const RADIUS = 10;
       function Init(){
-        drawing = ThreeTwoExamples.cube;
-        canvas = document.getElementById("test_canvas");
+        let points = null
+
+        let drawing = ThreeTwoExamples.cube;
+        let ctrl = false;
+
+
+        let canvas = document.getElementById("test_canvas");
         // console.log("drawing", drawing);
         Draw(canvas, drawing);
         window.addEventListener("keydown", KeyDown);
+        window.addEventListener("keyup", KeyUp);
+
          
+        let mousedown = null;
+        function TwoDown(evt){
+        }
+
+        /*
+        function MouseDown(evt){
+          let x = evt.pageX;
+          let y = evt.pageY;
+          [x, y];
+
+
+
+        }*/
+        function KeyUp(evt){
+          let code = evt.keyCode;
+          if(code == 17){
+            ctrl = false;
+          }
+        }
         function KeyDown(evt){
           let code = evt.keyCode;
-          // console.log("code", code);
+          let cam = drawing.camera;
+          if(code == 17){
+            ctrl = true;
+          }
+          let m = null;
+          if(ctrl){
+            m = ThreeTwo.CameraMatrix(cam.lookRight, 0);
+          }
           if(code == 37){
-            drawing.camera.lookRight += ANGLEINCREMENT;
+            if(ctrl){}
+              //cam.center[1] += 
+            cam.lookRight += ANGLEINCREMENT;
           }
           if(code == 38){
-            drawing.camera.lookUp += ANGLEINCREMENT;
-            drawing.camera.lookUp = Math.min(drawing.camera.lookUp, 90);
+            if(ctrl){
+              ThreeTwo.Add(cam.center, m[0], cam.center);
+            } else{
+              cam.lookUp += ANGLEINCREMENT;
+              cam.lookUp = Math.min(cam.lookUp, 90);
+            }
           }
           if(code == 39){
-            drawing.camera.lookRight -= ANGLEINCREMENT;
+            cam.lookRight -= ANGLEINCREMENT;
           }
           if(code == 40){
-            drawing.camera.lookUp -= ANGLEINCREMENT;
-            drawing.camera.lookUp = Math.max(drawing.camera.lookUp, -90);
+            if(ctrl){
+              ThreeTwo.Subtract(cam.center, m[0], cam.center);
+            } else{
+              cam.lookUp -= ANGLEINCREMENT;
+              cam.lookUp = Math.max(cam.lookUp, -90);
+            }
           }
           if(code >= 37 && code <= 40){
             Draw(canvas, drawing);
@@ -40,6 +84,33 @@
       function Draw(canvas, drawing){
         let ctx = canvas.getContext("2d");
 
+        // Show directional axis
+        let center = drawing.camera.center.slice(0);
+        let x = center.slice(0);
+        let y = center.slice(0);
+        let m = ThreeTwo.CameraMatrix(drawing.camera.lookRight, drawing.camera.lookUp);
+        //let dx = ThreeTwo.Scale(-0.5, m[0]);
+        //let dy = ThreeTwo.Scale(0.35, m[1]);
+        x[0] += 0.2;
+        y[1] += 0.6;
+        //ThreeTwo.Add(x, dx, x);
+        //ThreeTwo.Add(y, dy, y);
+
+        let axes = {
+          camera: {},
+          strokeStyles: ["black"],
+          points: [ center, x, y ],
+          strokes: [
+            ["0", 0, 1],
+            ["0", 0, 2],
+          ]
+        }
+        Object.assign(axes.camera, drawing.camera);
+        axes.camera.lookRight = 0;
+
+                /*
+        */
+
         // test rectangle
         // ctx.fillRect(30,30, 80, 20);
 
@@ -47,30 +118,32 @@
         let scale = canvas.width;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        ThreeTwo.DrawPoints(drawing, aspectRatio, function(x, y, i){
-          // console.log("Point #" + i, x, y);
-          ctx.fillRect(x * scale - POINTSIZE/2, y * scale - POINTSIZE/2, POINTSIZE, POINTSIZE);
-        })
+        for(let dd of [drawing, axes]){
+          ThreeTwo.DrawPoints(dd, aspectRatio, function(x, y, i){
+            // console.log("Point #" + i, x, y);
+            ctx.fillRect(x * scale - POINTSIZE/2, y * scale - POINTSIZE/2, POINTSIZE, POINTSIZE);
+          })
 
-        let lastColor = null;
-        let lastWidth = null;
-        ThreeTwo.DrawStrokes(drawing, aspectRatio, function(color, lineWidth, x, y, i, j){
-          if(i === null && j === null){ // last call when finished.
-            ctx.stroke();
-          }
-          else if(j == 0){
-            if(color != lastColor || lineWidth != lastWidth){
-              if(i > 0){ ctx.stroke(); }
-              ctx.beginPath();
-              lastColor = color;
-              lastWidth = lineWidth;
+          let lastColor = null;
+          let lastWidth = null;
+          ThreeTwo.DrawStrokes(dd, aspectRatio, function(color, lineWidth, x, y, i, j){
+            if(i === null && j === null){ // last call when finished.
+              ctx.stroke();
             }
-            ctx.moveTo(x * scale, y * scale);
-          }
-          else{
-            ctx.lineTo(x * scale, y * scale);
-          }
-        })
+            else if(j == 0){
+              if(color != lastColor || lineWidth != lastWidth){
+                if(i > 0){ ctx.stroke(); }
+                ctx.beginPath();
+                lastColor = color;
+                lastWidth = lineWidth;
+              }
+              ctx.moveTo(x * scale, y * scale);
+            }
+            else{
+              ctx.lineTo(x * scale, y * scale);
+            }
+          })
+        }
       }
     </script>
     <style>
