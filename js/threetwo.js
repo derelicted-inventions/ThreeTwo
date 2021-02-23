@@ -68,9 +68,9 @@ ThreeTwo.DrawPoints = function(drawing, aspectRatio, callback){
      let h2 = landscape? 0.5 / aspectRatio : 0.5;
      // console.log("w2, h2", w2, h2);
 
-     if(depth < -camera.dist + EPS) continue; // off screen
+     if(camera.scale*depth < -camera.dist + EPS) continue; // off screen
 
-     let scale = camera.scale * camera.dist / (camera.dist + depth)
+     let scale = camera.scale * camera.dist / (camera.dist + camera.scale *depth)
      // let scale = camera.scale;
      let xx = scale * x + w2;
      let yy = scale * y + h2;
@@ -106,12 +106,13 @@ ThreeTwo.ProjectPoints = function(drawing, aspectRatio){
      let h2 = landscape? 0.5 / aspectRatio : 0.5;
      // console.log("w2, h2", w2, h2);
 
-     if(depth < -camera.dist + EPS){ // off screen
+     if(camera.scale*depth < -camera.dist + EPS){
        result.push(null);
        continue;
      }
 
-     let scale = camera.scale * camera.dist / (camera.dist + depth)
+     //let scale = camera.scale * camera.dist / (camera.dist + depth)
+     let scale = camera.scale * camera.dist / (camera.dist + camera.scale *depth)
      // let scale = camera.scale;
      let xx = scale * x + w2;
      let yy = scale * y + h2;
@@ -235,8 +236,8 @@ ThreeTwoExamples.pyramid = {
 }
 ThreeTwoExamples.cube = {
    camera : {
-    scale: 1/10,
-    dist: 5,
+    scale: 1/30,
+    dist: 3,
     center: [0,-2,0],
     lookRight: 15,
     lookUp: -15,

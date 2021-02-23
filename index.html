@@ -13,14 +13,14 @@
         let points = null
 
         let drawing = ThreeTwoExamples.cube;
-        let ctrl = false;
-
 
         let canvas = document.getElementById("test_canvas");
+        canvas.width = window.innerWidth - 2;
+        canvas.height = window.innerHeight - 2;
         // console.log("drawing", drawing);
         Draw(canvas, drawing);
         window.addEventListener("keydown", KeyDown);
-        window.addEventListener("keyup", KeyUp);
+        //window.addEventListener("keyup", KeyUp);
 
          
         let mousedown = null;
@@ -36,44 +36,48 @@
 
 
         }*/
-        function KeyUp(evt){
-          let code = evt.keyCode;
-          if(code == 17){
-            ctrl = false;
-          }
-        }
         function KeyDown(evt){
           let code = evt.keyCode;
+          let ctrl = evt.ctrlKey;
+          let shift = evt.shiftKey;
           let cam = drawing.camera;
-          if(code == 17){
-            ctrl = true;
-          }
           let m = null;
-          if(ctrl){
+          if(!ctrl){
             m = ThreeTwo.CameraMatrix(cam.lookRight, 0);
           }
           if(code == 37){
-            if(ctrl){}
+            if(ctrl){
+              cam.lookRight += ANGLEINCREMENT;
+            } else {
+              ThreeTwo.Subtract(cam.center, m[1], cam.center);
+            }
               //cam.center[1] += 
-            cam.lookRight += ANGLEINCREMENT;
           }
           if(code == 38){
             if(ctrl){
-              ThreeTwo.Add(cam.center, m[0], cam.center);
-            } else{
               cam.lookUp += ANGLEINCREMENT;
               cam.lookUp = Math.min(cam.lookUp, 90);
+            } else if(shift){
+              ThreeTwo.Subtract(cam.center, [0,0,1], cam.center);
+            } else{
+              ThreeTwo.Add(m[0], cam.center, cam.center);
             }
           }
           if(code == 39){
-            cam.lookRight -= ANGLEINCREMENT;
+            if(ctrl){
+              cam.lookRight -= ANGLEINCREMENT;
+            } else {
+              ThreeTwo.Add(m[1], cam.center, cam.center);
+            }
           }
           if(code == 40){
             if(ctrl){
-              ThreeTwo.Subtract(cam.center, m[0], cam.center);
-            } else{
               cam.lookUp -= ANGLEINCREMENT;
               cam.lookUp = Math.max(cam.lookUp, -90);
+            } else if(shift){
+              ThreeTwo.Add(cam.center, [0,0,1], cam.center);
+            } else {
+              ThreeTwo.Subtract(cam.center, m[0], cam.center);
             }
           }
           if(code >= 37 && code <= 40){
@@ -88,13 +92,15 @@
         let center = drawing.camera.center.slice(0);
         let x = center.slice(0);
         let y = center.slice(0);
+        let z = center.slice(0);
         let m = ThreeTwo.CameraMatrix(drawing.camera.lookRight, drawing.camera.lookUp);
+        let dz = ThreeTwo.CameraMatrix();
         //let dx = ThreeTwo.Scale(-0.5, m[0]);
         //let dy = ThreeTwo.Scale(0.35, m[1]);
         x[0] += 0.2;
         y[1] += 0.6;
         //ThreeTwo.Add(x, dx, x);
-        //ThreeTwo.Add(y, dy, y);
+        ThreeTwo.Add(z, dz, z);
 
         let axes = {
           camera: {},
@@ -147,6 +153,7 @@
       }
     </script>
     <style>
+      body{ margin: 0; overflow: hidden; }
       #test_canvas{ border: 1px solid black; }
     </style>
   </head>
